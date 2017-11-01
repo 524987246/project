@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.buz.dao.BuzCustomerDao">
+
+	<sql id="buzCustomerColumns">
+		a.id AS "id",
+		a.phone AS "phone",
+		a.name AS "name",
+		a.password AS "password",
+		a.position AS "position",
+		a.email AS "email",
+		a.create_by AS "createBy.id",
+		c.name AS "createBy.name",
+		a.create_date
+		AS "createDate",
+		a.update_by AS "updateBy.id",
+		b.name AS
+		"updateBy.name",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="buzCustomerJoins">
+		left join sys_user b on a.update_by=b.id
+		left join sys_user c on a.create_by=c.id
+	</sql>
+
+	<select id="get" resultType="BuzCustomer">
+		SELECT
+		<include refid="buzCustomerColumns" />
+		FROM buz_customer a
+		<include refid="buzCustomerJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="BuzCustomer">
+		SELECT
+		<include refid="buzCustomerColumns" />
+		FROM buz_customer a
+		<include refid="buzCustomerJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="phone != null and phone != ''">
+				AND a.phone = #{phone}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="BuzCustomer">
+		SELECT
+		<include refid="buzCustomerColumns" />
+		FROM buz_customer a
+		<include refid="buzCustomerJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO buz_customer(
+		id,
+		phone,
+		name,
+		password,
+		position,
+		email,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{phone},
+		#{name},
+		#{password},
+		#{position},
+		#{email},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE buz_customer SET
+		phone = #{phone},
+		name = #{name},
+		<if test="password !=null and password !=''">
+			password = #{password},
+		</if>
+		position = #{position},
+		email = #{email},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE buz_customer SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

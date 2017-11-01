@@ -78,7 +78,13 @@ public class ${ClassName}Controller extends BaseController {
 		return "redirect:"+Global.getAdminPath()+"/${viewPrefix}/?repage";
 	}
 	
-	@RequiresPermissions("${permissionPrefix}:edit")
+	@RequiresPermissions("${permissionPrefix}:add")
+	@RequestMapping(value = "add")
+	public String add(B${ClassName} ${className}, Model model,
+			RedirectAttributes redirectAttributes) {
+		return save(${className}, model, redirectAttributes);
+	}
+	@RequiresPermissions("${permissionPrefix}:delete")
 	@RequestMapping(value = "delete")
 	public String delete(${ClassName} ${className}, RedirectAttributes redirectAttributes) {
 		${className}Service.delete(${className});
