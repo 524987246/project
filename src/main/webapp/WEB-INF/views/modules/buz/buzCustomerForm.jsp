@@ -100,21 +100,19 @@
 	</form:form>
 	<script type="text/javascript">
 		$('#btnSubmit').click(function() {
-			var flag = false;
 			var id = $("#id").val();
 			var password1 = $("#password1").val();
 			var password2 = $("#password2").val();
 			if (id == "") {
 				//新增状态下 密码为必填项
 				if (password1 == password2 && password1.length >= 6 && password1.length <= 18) {
-					flag = true;
 					$("#password").val(md5(password2));
+					$("#inputForm").submit();
 				} else {
 					alert("密码输入有误,请重新输入");
 					return;
 				}
 			} else {
-				flag = true;
 				if (password1 != password2) {
 					alert("两次密码输入");
 					return;
@@ -126,12 +124,8 @@
 				if (password1 == password2 && password1.length >= 6 && password1.length <= 18) {
 					$("#password").val(md5(password2));
 				}
-	
-			}
-			if (flag) {
 				$("#inputForm").submit();
 			}
-	
 		});
 	</script>
 </body>
