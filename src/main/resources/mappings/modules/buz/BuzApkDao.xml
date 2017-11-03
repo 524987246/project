@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.buz.dao.BuzApkDao">
+
+	<sql id="buzApkColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.edition AS "edition",
+		a.type AS "type",
+		a.path AS "path",
+		a.create_by AS "createBy.id",
+		c.name AS "createBy.name",
+		a.create_date AS "createDate",
+		a.update_by AS
+		"updateBy.id",
+		b.name AS
+		"updateBy.name",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS
+		"delFlag"
+	</sql>
+
+	<sql id="buzApkJoins">
+		left join sys_user b on a.update_by=b.id
+		left join sys_user
+		c on
+		a.create_by=c.id
+	</sql>
+
+	<select id="get" resultType="BuzApk">
+		SELECT
+		<include refid="buzApkColumns" />
+		FROM buz_apk a
+		<include refid="buzApkJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="BuzApk">
+		SELECT
+		<include refid="buzApkColumns" />
+		FROM buz_apk a
+		<include refid="buzApkJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="edition != null and edition != ''">
+				AND a.edition LIKE
+				<if test="dbName == 'oracle'">'%'||#{edition}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{edition}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{edition},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="BuzApk">
+		SELECT
+		<include refid="buzApkColumns" />
+		FROM buz_apk a
+		<include refid="buzApkJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO buz_apk(
+		id,
+		name,
+		edition,
+		type,
+		path,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{id},
+		#{name},
+		#{edition},
+		#{type},
+		#{path},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE buz_apk SET
+		name = #{name},
+		edition =
+		#{edition},
+		type = #{type},
+		path = #{path},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE buz_apk SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE
+		id = #{id}
+	</update>
+
+</mapper>
